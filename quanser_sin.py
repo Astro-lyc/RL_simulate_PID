@@ -48,7 +48,7 @@ next(diff_elevation)
 timestep = 0.1
 
 # Read Encoders channel 0,1,2
-for i in range(100000):
+for i in range(1):
     # v = sin(2 pi f t) ; t = i * dt(step)  f = 1Hz
     f = 1
     step = 0.05

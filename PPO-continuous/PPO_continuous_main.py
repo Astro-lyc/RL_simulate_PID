@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 # import gym
-from common.myenv import MyEnv
+from common.myenv_simulate import MyEnv
 
 import argparse
 from normalization import Normalization, RewardScaling
@@ -46,7 +46,8 @@ def main(args, env_name, number, seed):
     # env = gym.make(env_name)
     env = MyEnv()
     # env_evaluate = gym.make(env_name)  # When evaluating the policy, we need to rebuild an environment
-    env_evaluate = MyEnv()  # When evaluating the policy, we need to rebuild an environment
+    # env_evaluate = MyEnv()  # When evaluating the policy, we need to rebuild an environment
+    env_evaluate = env  # When evaluating the policy, we need to rebuild an environment
     # Set random seed
     env.seed(seed)
     # env.action_space.seed(seed)

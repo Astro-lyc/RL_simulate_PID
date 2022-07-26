@@ -24,9 +24,8 @@ class Space():
 
 class MyEnv():
     def __init__(self, ):
-        self.reset()
         #
-        self.card = HIL()
+        self.init_cart()
         # Set up a differentiator to get encoderSpeed from encoderCounts
         self.diff_travel = Calculus().differentiator_variable(0.1)
         self.diff_pitch = Calculus().differentiator_variable(0.1)
@@ -36,9 +35,22 @@ class MyEnv():
         next(self.diff_elevation)
         #
         self.timestep = 0.1
+        #
+        self.reset()
+
+    def init_cart(self):
+        self.card = HIL()
+        self.card.open("ni_pcie_6351", "0")
+        self.card.set_card_specific_options("terminal_board=mx_series;", MAX_STRING_LENGTH)
+        channels = array('I', [0, 1, 2])
+        num_channels = len(channels)
+        modes = array('i', [EncoderQuadratureMode.X4, EncoderQuadratureMode.X4, EncoderQuadratureMode.X4])
+        self.card.set_encoder_quadrature_mode(channels, num_channels, modes)
 
     # new
-    def change_v(self, v1, v2):
+    def change_v(self, *args):
+        v1 = args[0]
+        v2 = args[1]
         _ao_channels = array('I', [0])  #
         _ao_channels2 = array('I', [1])
         _ao_buffer = array('d', [v1])  # Voltage 1
@@ -71,10 +83,11 @@ class MyEnv():
         self.observation_space = Space(6)
         self.action_space = Space(2)
         self.reward = 0
-        self.reward_rate = 10  # todo 奖励10倍于距离缩小
+        self.reward_rate = 1  # todo 奖励10倍于距离缩小
         # fixme 设定一个最终状态（悬停目标）
         self.final_state = np.array([27, 0, 0, 0, 0, 0])  # 最终需要的观测值
-        self.change_v(0, 0)
+        self.change_v(0.0, 0.0)
+        time.sleep(2)
         # self.last_observation = np.zeros((len(self.final_state)))  # 最近一次的观测 -> 初始值是0，可修改
         self.last_observation = self.make_observa()  # 最近一次的观测 -> 初始值是0，可修改
         self.last_distance = self.o_distance(self.final_state, self.last_observation)  # 初始化距离比较量
@@ -106,6 +119,7 @@ class MyEnv():
     def step(self, action: torch.Tensor):
         # TODO 每个回合的步骤是否超过阈值，判断是否结束
         # self.last_observation = device_next_state(self.last_observation, action.tolist())
+        self.change_v(*action.tolist())
         self.last_observation = self.make_observa()
         reward = self.get_reward(self.last_observation)
         done = (self.is_dead(self.last_observation)) or (self.total_step >= 12000)
