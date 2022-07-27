@@ -4,8 +4,8 @@ import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 # import gym
-# from common.myenv_simulate import MyEnv
-from common.myenv import MyEnv
+from common.myenv_simulate import MyEnv
+# from common.myenv import MyEnv
 
 import argparse
 from normalization import Normalization, RewardScaling
@@ -41,7 +41,7 @@ def main(args, env_name, number, seed):
     agent = PPO_continuous(args)
     #  加载权重
     weight_file = './PPO_actor_newest.pth'
-    act = torch.load(weight_file).state_dict()
+    act = torch.load(weight_file)
     agent.actor.load_state_dict(act, strict=False)
 
     state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
@@ -84,10 +84,11 @@ def main(args, env_name, number, seed):
             if done and episode_steps != args.max_episode_steps:
                 dw = True
                 print("本轮游戏结束！程序退出")
+                env.reset()
                 quit()
             else:
                 dw = False
-                # time.sleep(0.08)  # fixme ?
+                time.sleep(0.08)  # fixme ?
 
             # Take the 'action'，but store the original 'a'（especially for Beta）
             # replay_buffer.store(s, a, a_logprob, r, s_, dw, done)

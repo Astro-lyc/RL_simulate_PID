@@ -72,9 +72,9 @@ class MyEnv():
         delta_travel = self.diff_travel.send((buffer[0], self.timestep))
         delta_pitch = self.diff_pitch.send((buffer[1], self.timestep))
         delta_elevation = self.diff_elevation.send((buffer[2], self.timestep))
-        w_travel = delta_travel / 8192 * 360  # Travel Speed
-        w_pitch = delta_pitch / 4096 * 360  # Pitch Speed
-        w_elevation = delta_elevation / 4096 * 360  # Elevation Speed
+        w_travel = delta_travel / 8192 * 360 / 180 * math.pi  # Travel Speed
+        w_pitch = delta_pitch / 4096 * 360 / 180 * math.pi            # Pitch Speed
+        w_elevation = delta_elevation / 4096 * 360 / 180 * math.pi # Elevation Speed
         state = [travel, pitch, elevation, w_travel, w_pitch, w_elevation]
         return np.array(state)
 
@@ -122,7 +122,7 @@ class MyEnv():
     def step(self, action: torch.Tensor):
         # TODO 每个回合的步骤是否超过阈值，判断是否结束
         # self.last_observation = device_next_state(self.last_observation, action.tolist())
-        self.change_v(*(action.tolist()) * 3)
+        self.change_v(*(action.tolist()) * 1)
         self.last_observation = self.make_observa()
         reward = self.get_reward(self.last_observation)
         done = (self.is_dead(self.last_observation)) or (self.total_step >= 12000)
