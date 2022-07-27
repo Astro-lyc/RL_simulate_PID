@@ -165,7 +165,7 @@ def main(args, env_name, number, seed):
                     # 保存模型v -> 只存个actor就行了
                     if evaluate_rewards[-1] > evaluate_rewards[-2] and total_steps > 80 * 1e3:
                         torch.save(agent.actor.state_dict(),
-                                   './data_train/PPO_actor_newest.pth')  # 保存权重少了state_dict智障行为
+                                   './PPO_actor_newest.pth')  # 保存权重少了state_dict智障行为
 
 
 if __name__ == '__main__':

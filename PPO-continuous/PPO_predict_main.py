@@ -76,9 +76,9 @@ def main(args, env_name, number, seed):
 
     # replay_buffer = ReplayBuffer(args)
     agent = PPO_continuous(args)
-    # todo 加载权重
+    #  加载权重
     weight_file = './PPO_actor_newest.pth'
-    act = torch.load(weight_file)
+    act = torch.load(weight_file).state_dict()
     agent.actor.load_state_dict(act, strict=False)
 
     # Build a tensorboard
@@ -107,7 +107,7 @@ def main(args, env_name, number, seed):
             else:
                 action = a
             s_, r, done, _ = env.step(action)
-            if episode_steps % 300 == 0:
+            if episode_steps % 10 == 0:
                 print('s:', s_, 'a:', a, 'r:', r)
                 # print(s)
                 # print(a)
