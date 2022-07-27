@@ -77,8 +77,9 @@ def main(args, env_name, number, seed):
     # replay_buffer = ReplayBuffer(args)
     agent = PPO_continuous(args)
     # todo 加载权重
-    weight_file = './data_train/PPO_actor_newest.pth'
-    agent.actor.load_state_dict(torch.load(weight_file))
+    weight_file = './PPO_actor_newest.pth'
+    act = torch.load(weight_file)
+    agent.actor.load_state_dict(act, strict=False)
 
     # Build a tensorboard
     # writer = SummaryWriter(
