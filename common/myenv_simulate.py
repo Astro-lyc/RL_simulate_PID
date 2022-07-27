@@ -64,9 +64,9 @@ class MyEnv():
         num_channels = len(channels)
         buffer = array('i', [0] * num_channels)
         self.card.read_encoder(channels, num_channels, buffer)
-        travel = float(buffer[0]) / 8192 * 360
-        pitch = float(buffer[1]) / 4096 * 360
-        elevation = float(buffer[2]) / 4096 * 360
+        travel = float(buffer[0]) / 8192 * 360 / 180 * math.pi
+        pitch = float(buffer[1]) / 4096 * 360 / 180 * math.pi
+        elevation = float(buffer[2]) / 4096 * 360 / 180 * math.pi
 
         # Differentiate encoder counts and then estimate linear speed in m/s
         delta_travel = self.diff_travel.send((buffer[0], self.timestep))

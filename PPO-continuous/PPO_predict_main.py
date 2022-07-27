@@ -26,7 +26,7 @@ def main(args, env_name, number, seed):
     # args.max_action = float(env.action_space.high[0])
     args.max_action = 10.0
     # args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
-    args.max_episode_steps = 200  # Maximum number of steps per episode
+    args.max_episode_steps = 20000  # Maximum number of steps per episode
     print("env={}".format(env_name))
     print("state_dim={}".format(args.state_dim))
     print("action_dim={}".format(args.action_dim))
@@ -87,7 +87,7 @@ def main(args, env_name, number, seed):
                 quit()
             else:
                 dw = False
-                time.sleep(0.08)  # fixme ?
+                # time.sleep(0.08)  # fixme ?
 
             # Take the 'action'，but store the original 'a'（especially for Beta）
             # replay_buffer.store(s, a, a_logprob, r, s_, dw, done)
