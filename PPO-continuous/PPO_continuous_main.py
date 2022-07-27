@@ -1,3 +1,4 @@
+import loguru
 import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
@@ -150,6 +151,7 @@ def main(args, env_name, number, seed):
 
             # Evaluate the policy every 'evaluate_freq' steps
             if total_steps % args.evaluate_freq == 0:
+                loguru.logger.info("当前total_steps：{}", total_steps)
                 evaluate_num += 1
                 evaluate_reward, hand_on_steps = evaluate_policy(args, env_evaluate, agent, state_norm)
                 evaluate_rewards.append(evaluate_reward)
@@ -166,6 +168,7 @@ def main(args, env_name, number, seed):
                     if evaluate_rewards[-1] > evaluate_rewards[-2] and total_steps > 80 * 1e3:
                         torch.save(agent.actor.state_dict(),
                                    './PPO_actor_newest.pth')  # 保存权重少了state_dict智障行为
+                        loguru.logger.warning("已保存权重！")
 
 
 if __name__ == '__main__':
