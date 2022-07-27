@@ -14,6 +14,10 @@ from ppo_continuous import PPO_continuous
 
 
 def main(args, env_name, number, seed):
+    # Build a tensorboard
+    writer = SummaryWriter(
+        log_dir='runs/PPO_predict'.format(env_name, args.policy_dist, number, seed))
+
     env = MyEnv()
     # Set random seed
     env.seed(seed)
@@ -93,6 +97,18 @@ def main(args, env_name, number, seed):
             # replay_buffer.store(s, a, a_logprob, r, s_, dw, done)
             s = s_
             total_steps += 1
+            #
+            # U
+            writer.add_scalar('U/left', a[0], global_step=total_steps)
+            writer.add_scalar('U/right', a[1], global_step=total_steps)
+            # S
+            writer.add_scalar('State/epi', s[0], global_step=total_steps)
+            writer.add_scalar('State/rou', s[1], global_step=total_steps)
+            writer.add_scalar('State/lam', s[2], global_step=total_steps)
+            #
+            writer.add_scalar('StateDot/epi_dot', s[3], global_step=total_steps)
+            writer.add_scalar('StateDot/rou_dot', s[4], global_step=total_steps)
+            writer.add_scalar('StateDot/lam_dot', s[5], global_step=total_steps)
 
 
 if __name__ == '__main__':
