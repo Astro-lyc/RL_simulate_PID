@@ -27,7 +27,7 @@ class MyEnv():
         self.reward_rate = 10  # todo 奖励10倍于距离缩小
         # fixme 设定一个最终状态（悬停目标）
         # self.final_state = np.array([1.4, .0, .0, 0.45, .0, .0])  # 最终需要的观测值
-        self.final_state = np.array([0, 0, 25 / 180 * math.pi, 0, 0, 0])  # 最终需要的观测值
+        self.final_state = np.array([25 / 180 * math.pi, 0, 0, 0, 0, 0])  # 最终需要的观测值
         self.last_observation = np.zeros((len(self.final_state)))  # 最近一次的观测 -> 初始值是0，可修改
         self.last_distance = self.o_distance(self.final_state, self.last_observation)  # 初始化距离比较量
         self.total_step = 1
@@ -46,14 +46,15 @@ class MyEnv():
 
     # 回合是否或者
     def is_dead(self, state: np.array):
+        # e = state[0] > 30 / 180 * math.pi or state[1] < -30 / 180
         pitch = state[1] > 30 / 180 * math.pi or state[1] < -30 / 180
-        travel = state[0] > 30 / 180 * math.pi or state[0] < -30 / 180
-        m = np.max(state[:3]) >= 1.05 or np.min(state[:3]) <= -1.05
+        travel = state[2] > 30 / 180 * math.pi or state[0] < -30 / 180
+        # m = np.max(state[:3]) >= 1.05 or np.min(state[:3]) <= -1.05
         # v
-        v4 = state[3] > 0.40 or state[3] < -0.40
-        v5 = state[4] > 0.40 or state[4] < -0.40
-        v6 = state[5] > 0.50 or state[5] < -0.60
-        return pitch or travel or m or v4 or v5 or v6
+        e_v4 = state[3] > 0.50 or state[3] < -0.60
+        p_v5 = state[4] > 0.40 or state[4] < -0.40
+        t_v6 = state[5] > 0.40 or state[5] < -0.40
+        return pitch or travel or e_v4 or p_v5 or t_v6
 
     # 定义奖励：目前状态距目标的距离与前一次状态距目标的距离的差值按比例缩放
     def get_reward(self, state: np.array):

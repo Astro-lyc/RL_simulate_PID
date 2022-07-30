@@ -80,7 +80,7 @@ def main(args, env_name, number, seed):
 
     # Build a tensorboard
     writer = SummaryWriter(
-        log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}_6'.format(env_name, args.policy_dist, number, seed))
+        log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}_7'.format(env_name, args.policy_dist, number, seed))
 
     state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
     if args.use_reward_norm:  # Trick 3:reward normalization
