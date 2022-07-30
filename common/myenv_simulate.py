@@ -66,12 +66,12 @@ class MyEnv():
         self.card.read_encoder(channels, num_channels, buffer)
         travel = float(buffer[0]) / 8192 * 360 / 180 * math.pi
         pitch = float(buffer[1]) / 4096 * 360 / 180 * math.pi
-        elevation = float(buffer[2]) / 4096 * 360 / 180 * math.pi
+        elevation = float(-buffer[2]) / 4096 * 360 / 180 * math.pi
 
         # Differentiate encoder counts and then estimate linear speed in m/s
         delta_travel = self.diff_travel.send((buffer[0], self.timestep))
         delta_pitch = self.diff_pitch.send((buffer[1], self.timestep))
-        delta_elevation = self.diff_elevation.send((buffer[2], self.timestep))
+        delta_elevation = self.diff_elevation.send((-buffer[2], self.timestep))
         w_travel = delta_travel / 8192 * 360 / 180 * math.pi  # Travel Speed
         w_pitch = delta_pitch / 4096 * 360 / 180 * math.pi  # Pitch Speed
         w_elevation = delta_elevation / 4096 * 360 / 180 * math.pi  # Elevation Speed
@@ -93,7 +93,7 @@ class MyEnv():
         self.init_cart()
         # self.last_observation = np.zeros((len(self.final_state)))  # 最近一次的观测 -> 初始值是0，可修改
         self.last_observation = self.make_observa()  # 最近一次的观测 -> 初始值是0，可修改
-        self.last_distance = self.o_distance(self.final_state[:3], self.last_observation[:3])  # 初始化距离比较量
+        self.last_distance = self.o_distance(self.final_state[:], self.last_observation[:])  # 初始化距离比较量
         self.total_step = 1
         return self.last_observation
 
