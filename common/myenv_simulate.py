@@ -117,8 +117,8 @@ class MyEnv():
         v4 = state[3] > 0.40 or state[3] < -0.40
         v5 = state[4] > 0.40 or state[4] < -0.40
         v6 = state[5] > 0.50 or state[5] < -0.60
-        return pitch or travel or m or v4 or v5 or v6
-        # return m
+        # return pitch or travel or m or v4 or v5 or v6
+        return m
 
     # 定义奖励：目前状态距目标的距离与前一次状态距目标的距离的差值按比例缩放
     def get_reward(self, state: np.array):
