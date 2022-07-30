@@ -29,6 +29,7 @@ def main(args, env_name, number, seed):
     # fixme 10？
     # args.max_action = float(env.action_space.high[0])
     args.max_action = 24.0
+    args.max_action = 5.0
     # args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
     args.max_episode_steps = 20000  # Maximum number of steps per episode
     print("env={}".format(env_name))
@@ -68,7 +69,7 @@ def main(args, env_name, number, seed):
             episode_steps += 1
             a, a_logprob = agent.choose_action(s)  # Action and the corresponding log probability
             if args.policy_dist == "Beta":
-                action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
+                action = -2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
             else:
                 action = a
             s_, r, done, _ = env.step(action)
