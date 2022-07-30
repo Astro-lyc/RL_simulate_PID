@@ -28,7 +28,7 @@ def main(args, env_name, number, seed):
     args.action_dim = env.action_space.shape[0]
     # fixme 10？
     # args.max_action = float(env.action_space.high[0])
-    args.max_action = 20.0
+    args.max_action = 16.0
     # args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
     args.max_episode_steps = 20000  # Maximum number of steps per episode
     print("env={}".format(env_name))
@@ -73,7 +73,7 @@ def main(args, env_name, number, seed):
             if args.policy_dist == "Beta":
                 action = -2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
             else:
-                action = a
+                action = -a
             s_, r, done, _ = env.step(action)
             if episode_steps % 1 == 0:
                 print('s:', s_, 'a:', a, 'r:', r)
@@ -126,8 +126,8 @@ if __name__ == '__main__':
     parser.add_argument("--evaluate_freq", type=float, default=5e3,
                         help="Evaluate the policy every 'evaluate_freq' steps")
     parser.add_argument("--save_freq", type=int, default=20, help="Save frequency")
-    # parser.add_argument("--policy_dist", type=str, default="Gaussian", help="Beta or Gaussian")
-    parser.add_argument("--policy_dist", type=str, default="Beta", help="Beta or Gaussian")
+    parser.add_argument("--policy_dist", type=str, default="Gaussian", help="Beta or Gaussian")
+    # parser.add_argument("--policy_dist", type=str, default="Beta", help="Beta or Gaussian")
     parser.add_argument("--batch_size", type=int, default=2048, help="Batch size")
     parser.add_argument("--mini_batch_size", type=int, default=64, help="Minibatch size")
     parser.add_argument("--hidden_width", type=int, default=64,
