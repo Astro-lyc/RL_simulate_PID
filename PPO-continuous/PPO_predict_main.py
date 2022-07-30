@@ -28,7 +28,7 @@ def main(args, env_name, number, seed):
     args.action_dim = env.action_space.shape[0]
     # fixme 10？
     # args.max_action = float(env.action_space.high[0])
-    args.max_action = 8.0
+    args.max_action = 20.0
     # args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
     args.max_episode_steps = 20000  # Maximum number of steps per episode
     print("env={}".format(env_name))
@@ -66,13 +66,16 @@ def main(args, env_name, number, seed):
         while not done:
             start_time = time.time()
             episode_steps += 1
+            if episode_steps >= 1000:
+                env.reset()
+                quit()
             a, a_logprob = agent.choose_action(s)  # Action and the corresponding log probability
             if args.policy_dist == "Beta":
                 action = -2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
             else:
                 action = a
             s_, r, done, _ = env.step(action)
-            if episode_steps % 10 == 0:
+            if episode_steps % 1 == 0:
                 print('s:', s_, 'a:', a, 'r:', r)
                 # print(s)
                 # print(a)
@@ -87,7 +90,7 @@ def main(args, env_name, number, seed):
             # When dead or win or reaching the max_episode_steps, done will be Ture, we need to distinguish them;
             # dw means dead or win,there is no next state s';
             # but when reaching the max_episode_steps,there is a next state s' actually.
-            dur = time.time()  - start_time
+            dur = time.time() - start_time
             if done and episode_steps != args.max_episode_steps:
                 dw = True
                 print("本轮游戏结束！程序退出")
