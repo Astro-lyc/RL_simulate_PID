@@ -27,7 +27,7 @@ class MyEnv():
         self.reward_rate = 10  # todo 奖励10倍于距离缩小
         # fixme 设定一个最终状态（悬停目标）
         # self.final_state = np.array([1.4, .0, .0, 0.45, .0, .0])  # 最终需要的观测值
-        self.final_state = np.array([60 / 180 * 3.1415, 0, 0, 0, 0, 0])  # 最终需要的观测值
+        self.final_state = np.array([25 / 180 * 3.1415, 0, 0, 0, 0, 0])  # 最终需要的观测值
         self.last_observation = np.zeros((len(self.final_state)))  # 最近一次的观测 -> 初始值是0，可修改
         self.last_distance = self.o_distance(self.final_state, self.last_observation)  # 初始化距离比较量
         self.total_step = 1

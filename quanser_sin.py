@@ -53,7 +53,7 @@ for i in range(1):
     f = 1
     step = 0.05
     t = i * step
-    v = math.sin(2 * math.pi * f * t) * 8
+    v = math.sin(2 * math.pi * f * t) * 3
     print(v)
     writer.add_scalar('v', v, global_step=i)
 
