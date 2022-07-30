@@ -75,7 +75,8 @@ class MyEnv():
         w_travel = delta_travel / 8192 * 360 / 180 * math.pi  # Travel Speed
         w_pitch = delta_pitch / 4096 * 360 / 180 * math.pi  # Pitch Speed
         w_elevation = delta_elevation / 4096 * 360 / 180 * math.pi  # Elevation Speed
-        state = [travel, pitch, elevation, w_travel, w_pitch, w_elevation]
+        # state = [travel, pitch, elevation, w_travel, w_pitch, w_elevation]
+        state = [elevation, pitch, travel, w_travel, w_pitch, w_elevation]
         return np.array(state)
 
     # 重置环境
@@ -110,15 +111,15 @@ class MyEnv():
 
     # 回合是否或者
     def is_dead(self, state: np.array):
+        # e = state[0] > 30 / 180 * math.pi or state[1] < -30 / 180
         pitch = state[1] > 30 / 180 * math.pi or state[1] < -30 / 180
-        travel = state[0] > 30 / 180 * math.pi or state[0] < -30 / 180
-        m = np.max(state[:3]) >= 1.05 or np.min(state[:3]) <= -1.05
+        travel = state[2] > 30 / 180 * math.pi or state[0] < -30 / 180
+        # m = np.max(state[:3]) >= 1.05 or np.min(state[:3]) <= -1.05
         # v
-        v4 = state[3] > 0.40 or state[3] < -0.40
-        v5 = state[4] > 0.40 or state[4] < -0.40
-        v6 = state[5] > 0.50 or state[5] < -0.60
-        # return pitch or travel or m or v4 or v5 or v6
-        return m
+        e_v4 = state[3] > 0.50 or state[3] < -0.60
+        p_v5 = state[4] > 0.40 or state[4] < -0.40
+        t_v6 = state[5] > 0.40 or state[5] < -0.40
+        return pitch or travel or e_v4 or p_v5 or t_v6
 
     # 定义奖励：目前状态距目标的距离与前一次状态距目标的距离的差值按比例缩放
     def get_reward(self, state: np.array):
