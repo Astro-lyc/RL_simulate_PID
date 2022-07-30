@@ -62,7 +62,7 @@ def main(args, env_name, number, seed):
     args.action_dim = env.action_space.shape[0]
     # fixme 10？
     # args.max_action = float(env.action_space.high[0])
-    args.max_action = 10.0
+    args.max_action = 24.0
     # args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
     args.max_episode_steps = 2000  # Maximum number of steps per episode
     print("env={}".format(env_name))
@@ -80,7 +80,7 @@ def main(args, env_name, number, seed):
 
     # Build a tensorboard
     writer = SummaryWriter(
-        log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}'.format(env_name, args.policy_dist, number, seed))
+        log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}_2'.format(env_name, args.policy_dist, number, seed))
 
     state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
     if args.use_reward_norm:  # Trick 3:reward normalization
@@ -104,7 +104,7 @@ def main(args, env_name, number, seed):
             else:
                 action = a
             s_, r, done, _ = env.step(action)
-            if episode_steps % 100 == 0:
+            if episode_steps % 30 == 0:
                 print('s:', s_, 'a:', a, 'r:', r)
                 # print(s)
                 # print(a)
