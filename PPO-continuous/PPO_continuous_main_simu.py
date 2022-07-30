@@ -1,5 +1,6 @@
 import time
 
+import loguru
 import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
@@ -13,14 +14,49 @@ from replaybuffer import ReplayBuffer
 from ppo_continuous import PPO_continuous
 
 
-def main(args, env_name, number, seed):
-    # Build a tensorboard
-    writer = SummaryWriter(
-        log_dir='runs/PPO_predict'.format(env_name, args.policy_dist, number, seed))
+def evaluate_policy(args, env, agent, state_norm):
+    times = 3
+    evaluate_reward = 0
+    hand_on_step = 0  # 新增：总的
+    for _ in range(times):
+        # todo re_list = []
+        s = env.reset()
+        if args.use_state_norm:
+            s = state_norm(s, update=False)  # During the evaluating,update=False
+        done = False
+        episode_reward = 0
+        step = 0  # 新增：每回合坚持回合数
+        while not done:
+            a = agent.evaluate(s)  # We use the deterministic policy during the evaluating
+            if args.policy_dist == "Beta":
+                action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
+            else:
+                action = a
+            s_, r, done, _ = env.step(action)
+            # todo append
+            if args.use_state_norm:
+                s_ = state_norm(s_, update=False)
+            episode_reward += r
+            s = s_
+            step += 1
+        hand_on_step += step
+        evaluate_reward += episode_reward
+        # todo 画图 plt.save
+    # 新增：平均每回合坚持step数量
+    return evaluate_reward / times, hand_on_step / times
 
+
+def main(args, env_name, number, seed):
+    # env = gym.make(env_name)
     env = MyEnv()
+    # env_evaluate = gym.make(env_name)  # When evaluating the policy, we need to rebuild an environment
+    # env_evaluate = MyEnv()  # When evaluating the policy, we need to rebuild an environment
+    env_evaluate = env  # When evaluating the policy, we need to rebuild an environment
     # Set random seed
     env.seed(seed)
+    # env.action_space.seed(seed)
+    env_evaluate.seed(seed)
+    # env_evaluate.action_space.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
 
@@ -28,9 +64,9 @@ def main(args, env_name, number, seed):
     args.action_dim = env.action_space.shape[0]
     # fixme 10？
     # args.max_action = float(env.action_space.high[0])
-    args.max_action = 24.0
+    args.max_action = 24
     # args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
-    args.max_episode_steps = 20000  # Maximum number of steps per episode
+    args.max_episode_steps = 2000  # Maximum number of steps per episode
     print("env={}".format(env_name))
     print("state_dim={}".format(args.state_dim))
     print("action_dim={}".format(args.action_dim))
@@ -41,13 +77,12 @@ def main(args, env_name, number, seed):
     evaluate_rewards = []  # Record the rewards during the evaluating
     total_steps = 0  # Record the total steps during the training
 
-    # replay_buffer = ReplayBuffer(args)
+    replay_buffer = ReplayBuffer(args)
     agent = PPO_continuous(args)
-    #  加载权重
-    weight_file = './PPO_actor_newest.pth'
-    act = torch.load(weight_file)
-    # act = torch.load(weight_file).state_dict()
-    agent.actor.load_state_dict(act, strict=False)
+
+    # Build a tensorboard
+    writer = SummaryWriter(
+        log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}'.format(env_name, args.policy_dist, number, seed))
 
     state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
     if args.use_reward_norm:  # Trick 3:reward normalization
@@ -71,12 +106,20 @@ def main(args, env_name, number, seed):
                 action = 2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
             else:
                 action = a
+                # action = a * args.max_action
+
+            end_time = time.time()
+            time_delay = end_time - start_time
+            time_diff = 0.1 - time_delay
+            if time_diff > 0:
+                time.sleep(time_diff)
             s_, r, done, _ = env.step(action)
-            if episode_steps % 10 == 0:
+            if episode_steps % 300 == 0:
                 print('s:', s_, 'a:', a, 'r:', r)
-                # print(s)
-                # print(a)
-                # print(r)
+            print('s:', s_, 'a:', a, 'r:', r)
+            # print(s)
+            # print(a)
+            # print(r)
             if args.use_state_norm:
                 s_ = state_norm(s_)
             if args.use_reward_norm:
@@ -87,34 +130,56 @@ def main(args, env_name, number, seed):
             # When dead or win or reaching the max_episode_steps, done will be Ture, we need to distinguish them;
             # dw means dead or win,there is no next state s';
             # but when reaching the max_episode_steps,there is a next state s' actually.
-            dur = time.time()  - start_time
             if done and episode_steps != args.max_episode_steps:
                 dw = True
-                print("本轮游戏结束！程序退出")
-                env.reset()
-                quit()
             else:
                 dw = False
-                sleep_dur = 0.1 - dur
-                if sleep_dur > 0:
-                    time.sleep(sleep_dur)  # fixme ?
 
             # Take the 'action'，but store the original 'a'（especially for Beta）
-            # replay_buffer.store(s, a, a_logprob, r, s_, dw, done)
+            replay_buffer.store(s, a, a_logprob, r, s_, dw, done)
             s = s_
             total_steps += 1
-            #
-            # U
-            writer.add_scalar('U/left', a[0], global_step=total_steps)
-            writer.add_scalar('U/right', a[1], global_step=total_steps)
-            # S
-            writer.add_scalar('State/epi', s[0], global_step=total_steps)
-            writer.add_scalar('State/rou', s[1], global_step=total_steps)
-            writer.add_scalar('State/lam', s[2], global_step=total_steps)
-            #
-            writer.add_scalar('StateDot/epi_dot', s[3], global_step=total_steps)
-            writer.add_scalar('StateDot/rou_dot', s[4], global_step=total_steps)
-            writer.add_scalar('StateDot/lam_dot', s[5], global_step=total_steps)
+
+            # When the number of transitions in buffer reaches batch_size,then update
+            if replay_buffer.count == args.batch_size:
+                lr_a, lr_c, loss = agent.update(replay_buffer, total_steps)  # 两个学习率也记录一下
+                writer.add_scalar('LR/lr_a_{}'.format(env_name), lr_a, global_step=total_steps)
+                writer.add_scalar('LR/lr_c_{}'.format(env_name), lr_c, global_step=total_steps)
+                writer.add_scalar('Loss/loss_{}'.format(env_name), loss, global_step=total_steps)
+                writer.add_scalar('Reword/last_reward_{}'.format(env_name), r, global_step=total_steps)
+                # U
+                writer.add_scalar('U/left', a[0], global_step=total_steps)
+                writer.add_scalar('U/right', a[1], global_step=total_steps)
+                # S
+                writer.add_scalar('State/epi', s[0], global_step=total_steps)
+                writer.add_scalar('State/rou', s[1], global_step=total_steps)
+                writer.add_scalar('State/lam', s[2], global_step=total_steps)
+                #
+                writer.add_scalar('StateDot/epi_dot', s[3], global_step=total_steps)
+                writer.add_scalar('StateDot/rou_dot', s[4], global_step=total_steps)
+                writer.add_scalar('StateDot/lam_dot', s[5], global_step=total_steps)
+                replay_buffer.count = 0
+
+            # Evaluate the policy every 'evaluate_freq' steps
+            if total_steps % args.evaluate_freq == 0:
+                loguru.logger.info("当前total_steps：{}", total_steps)
+                evaluate_num += 1
+                evaluate_reward, hand_on_steps = evaluate_policy(args, env_evaluate, agent, state_norm)
+                evaluate_rewards.append(evaluate_reward)
+                print("evaluate_num:{} \t evaluate_reward:{} \t".format(evaluate_num, evaluate_reward))
+                writer.add_scalar('step_rewards_{}'.format(env_name), evaluate_rewards[-1], global_step=total_steps)
+                writer.add_scalar('hold_on_steps_{}'.format(env_name), hand_on_steps, global_step=total_steps)
+                # Save the rewards
+                if evaluate_num % args.save_freq == 0:
+                    np.save(
+                        './data_train/PPO_continuous_{}_env_{}_number_{}_seed_{}.npy'.format(args.policy_dist, env_name,
+                                                                                             number, seed),
+                        np.array(evaluate_rewards))
+                    # 保存模型v -> 只存个actor就行了
+                    if evaluate_rewards[-1] > evaluate_rewards[-2] and total_steps > 80 * 1e3:
+                        torch.save(agent.actor.state_dict(),
+                                   './PPO_actor_newest.pth')  # 保存权重少了state_dict智障行为
+                        loguru.logger.warning("已保存权重！")
 
 
 if __name__ == '__main__':
@@ -123,8 +188,7 @@ if __name__ == '__main__':
     parser.add_argument("--evaluate_freq", type=float, default=5e3,
                         help="Evaluate the policy every 'evaluate_freq' steps")
     parser.add_argument("--save_freq", type=int, default=20, help="Save frequency")
-    # parser.add_argument("--policy_dist", type=str, default="Gaussian", help="Beta or Gaussian")
-    parser.add_argument("--policy_dist", type=str, default="Beta", help="Beta or Gaussian")
+    parser.add_argument("--policy_dist", type=str, default="Gaussian", help="Beta or Gaussian")
     parser.add_argument("--batch_size", type=int, default=2048, help="Batch size")
     parser.add_argument("--mini_batch_size", type=int, default=64, help="Minibatch size")
     parser.add_argument("--hidden_width", type=int, default=64,

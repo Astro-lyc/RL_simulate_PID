@@ -72,9 +72,9 @@ class MyEnv():
         delta_travel = self.diff_travel.send((buffer[0], self.timestep))
         delta_pitch = self.diff_pitch.send((buffer[1], self.timestep))
         delta_elevation = self.diff_elevation.send((buffer[2], self.timestep))
-        w_travel = delta_travel / 8192 * 360  # Travel Speed
-        w_pitch = delta_pitch / 4096 * 360  # Pitch Speed
-        w_elevation = delta_elevation / 4096 * 360  # Elevation Speed
+        w_travel = delta_travel / 8192 * 360 / 180 * math.pi  # Travel Speed
+        w_pitch = delta_pitch / 4096 * 360 / 180 * math.pi  # Pitch Speed
+        w_elevation = delta_elevation / 4096 * 360 / 180 * math.pi  # Elevation Speed
         state = [travel, pitch, elevation, w_travel, w_pitch, w_elevation]
         return np.array(state)
 
@@ -83,17 +83,17 @@ class MyEnv():
         self.observation_space = Space(6)
         self.action_space = Space(2)
         self.reward = 0
-        self.reward_rate = 1  # todo 奖励10倍于距离缩小
+        self.reward_rate = 10  # todo 奖励10倍于距离缩小
         # fixme 设定一个最终状态（悬停目标）
-        self.final_state = np.array([27, 0, 0, 0, 0, 0])  # 最终需要的观测值
+        self.final_state = np.array([0, 0, 25 / 180 * math.pi, 0, 0, 0])  # 最终需要的观测值
         self.change_v(0.0, 0.0)
         print('sleep2')
-        time.sleep(0.5)
+        time.sleep(4)
         self.card.close()
         self.init_cart()
         # self.last_observation = np.zeros((len(self.final_state)))  # 最近一次的观测 -> 初始值是0，可修改
         self.last_observation = self.make_observa()  # 最近一次的观测 -> 初始值是0，可修改
-        self.last_distance = self.o_distance(self.final_state, self.last_observation)  # 初始化距离比较量
+        self.last_distance = self.o_distance(self.final_state[:3], self.last_observation[:3])  # 初始化距离比较量
         self.total_step = 1
         return self.last_observation
 
@@ -110,22 +110,33 @@ class MyEnv():
 
     # 回合是否或者
     def is_dead(self, state: np.array):
-        return np.max(state[:3]) >= 1.05 or np.min(state[:3]) <= -1.05
+        pitch = state[1] > 30 / 180 * math.pi or state[1] < -30 / 180
+        travel = state[0] > 30 / 180 * math.pi or state[0] < -30 / 180
+        m = np.max(state[:3]) >= 1.05 or np.min(state[:3]) <= -1.05
+        # v
+        v4 = state[3] > 0.40 or state[3] < -0.40
+        v5 = state[4] > 0.40 or state[4] < -0.40
+        v6 = state[5] > 0.50 or state[5] < -0.60
+        # return pitch or travel or m or v4 or v5 or v6
+        return m
 
     # 定义奖励：目前状态距目标的距离与前一次状态距目标的距离的差值按比例缩放
     def get_reward(self, state: np.array):
-        distance = self.o_distance(state, self.final_state)
-        # self.reward = self.reward_rate * (distance - self.last_distance)
-        # return self.reward
-        return -distance * self.reward_rate + 10
+        distance = self.o_distance(state[:3], self.final_state[:3])
+        e_dis = self.o_distance(state[2], self.final_state[2])
+        # return -distance * self.reward_rate + 5
+        return -(distance * self.reward_rate) - (e_dis * self.reward_rate * 1) + 15
 
     def step(self, action: torch.Tensor):
         # TODO 每个回合的步骤是否超过阈值，判断是否结束
         # self.last_observation = device_next_state(self.last_observation, action.tolist())
-        self.change_v(*(action.tolist()) * 3)
+        ac_real_v_list = (action * 1).tolist()
+        self.change_v(*ac_real_v_list)
         self.last_observation = self.make_observa()
         reward = self.get_reward(self.last_observation)
         done = (self.is_dead(self.last_observation)) or (self.total_step >= 12000)
+        if done:
+            print('dead')
         self.total_step += 1
         return self.last_observation, reward, done, 0
 
