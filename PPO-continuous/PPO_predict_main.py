@@ -28,8 +28,7 @@ def main(args, env_name, number, seed):
     args.action_dim = env.action_space.shape[0]
     # fixme 10？
     # args.max_action = float(env.action_space.high[0])
-    args.max_action = 24.0
-    args.max_action = 5.0
+    args.max_action = 8.0
     # args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
     args.max_episode_steps = 20000  # Maximum number of steps per episode
     print("env={}".format(env_name))
