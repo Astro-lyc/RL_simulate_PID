@@ -48,13 +48,13 @@ next(diff_elevation)
 timestep = 0.1
 
 # Read Encoders channel 0,1,2
-for i in range(1):
+for i in range(100):
     # v = sin(2 pi f t) ; t = i * dt(step)  f = 1Hz
     f = 1
-    step = 0.05
+    step = 0.1
     t = i * step
-    v = math.sin(2 * math.pi * f * t) * 3
-    print(v)
+    v = math.sin(2 * math.pi * f * t) * 10
+    # print(v)
     writer.add_scalar('v', v, global_step=i)
 
     _ao_buffer = array('d', [v])  # Voltage 1
@@ -86,7 +86,7 @@ for i in range(1):
     writer.add_scalar('state/w_pitch', w_pitch, global_step=i)
     writer.add_scalar('state/w_elevation', w_elevation, global_step=i)
 
-    # print(state)
+    print(state)
     time.sleep(step)
 
 _ao_buffer = array('d', [0])  # Voltage 1

@@ -26,13 +26,7 @@ class MyEnv():
     def __init__(self, ):
         #
         self.init_cart()
-        # Set up a differentiator to get encoderSpeed from encoderCounts
-        self.diff_travel = Calculus().differentiator_variable(0.1)
-        self.diff_pitch = Calculus().differentiator_variable(0.1)
-        self.diff_elevation = Calculus().differentiator_variable(0.1)
-        next(self.diff_travel)
-        next(self.diff_pitch)
-        next(self.diff_elevation)
+        self.init_diff()
         #
         self.timestep = 0.1
         #
@@ -46,6 +40,16 @@ class MyEnv():
         num_channels = len(channels)
         modes = array('i', [EncoderQuadratureMode.X4, EncoderQuadratureMode.X4, EncoderQuadratureMode.X4])
         self.card.set_encoder_quadrature_mode(channels, num_channels, modes)
+
+    # 重置积分
+    def init_diff(self):
+        # Set up a differentiator to get encoderSpeed from encoderCounts
+        self.diff_travel = Calculus().differentiator_variable(0.1)
+        self.diff_pitch = Calculus().differentiator_variable(0.1)
+        self.diff_elevation = Calculus().differentiator_variable(0.1)
+        next(self.diff_travel)
+        next(self.diff_pitch)
+        next(self.diff_elevation)
 
     # new
     def change_v(self, *args):
@@ -64,12 +68,12 @@ class MyEnv():
         num_channels = len(channels)
         buffer = array('i', [0] * num_channels)
         self.card.read_encoder(channels, num_channels, buffer)
-        travel = float(buffer[0]) / 8192 * 360 / 180 * math.pi
+        travel = -float(buffer[0]) / 8192 * 360 / 180 * math.pi
         pitch = float(buffer[1]) / 4096 * 360 / 180 * math.pi
         elevation = float(-buffer[2]) / 4096 * 360 / 180 * math.pi
 
         # Differentiate encoder counts and then estimate linear speed in m/s
-        delta_travel = self.diff_travel.send((buffer[0], self.timestep))
+        delta_travel = self.diff_travel.send((-buffer[0], self.timestep))
         delta_pitch = self.diff_pitch.send((buffer[1], self.timestep))
         delta_elevation = self.diff_elevation.send((-buffer[2], self.timestep))
         w_travel = delta_travel / 8192 * 360 / 180 * math.pi  # Travel Speed
@@ -92,6 +96,7 @@ class MyEnv():
         time.sleep(4)
         self.card.close()
         self.init_cart()
+        self.init_diff()
         # self.last_observation = np.zeros((len(self.final_state)))  # 最近一次的观测 -> 初始值是0，可修改
         self.last_observation = self.make_observa()  # 最近一次的观测 -> 初始值是0，可修改
         self.last_distance = self.o_distance(self.final_state[:], self.last_observation[:])  # 初始化距离比较量
