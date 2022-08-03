@@ -71,7 +71,7 @@ class MyEnv():
         p0 = self.pid_list[0](state[0])
         p1 = self.pid_list[1](state[1])
         p2 = self.pid_list[2](state[2])
-        return -(p0 * 3 + p1 + p2) + 100 + d
+        return -(p0 * 3 + p1 + p2) * 10 + 50 + d
 
     def step(self, action: torch.Tensor):
         # TODO 每个回合的步骤是否超过阈值，判断是否结束
