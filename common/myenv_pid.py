@@ -39,7 +39,7 @@ class MyEnv():
         self.pid_list.append(PID(5, 0.01, 0.1, setpoint=final_state_list[1]))
         self.pid_list.append(PID(5, 0.01, 0.1, setpoint=final_state_list[2]))
         for pid in self.pid_list:
-            pid.output_limits = (0, 24)
+            pid.output_limits = (-24, 24)
         #
         return self.last_observation
 
@@ -68,9 +68,9 @@ class MyEnv():
         distance = self.o_distance(state[:], self.final_state[:])
         d = -distance * self.reward_rate + 10
         # 稳定性奖励
-        p0 = self.pid_list[0](state[0])
-        p1 = self.pid_list[1](state[1])
-        p2 = self.pid_list[2](state[2])
+        p0 = self.pid_list[0](state[0], 0.1)
+        p1 = self.pid_list[1](float(state[1]), 0.1)
+        p2 = self.pid_list[2](float(state[2]), 0.1)
         return -(p0 * 3 + p1 + p2) * 10 + 50 + d
 
     def step(self, action: torch.Tensor):
