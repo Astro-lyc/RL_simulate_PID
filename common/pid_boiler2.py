@@ -24,7 +24,9 @@ class WaterBoiler:
         self.v += 1 * boiler_power * dt
         last_observation, reward, done, _ = self.env.step(torch.tensor([self.v, self.v]))
         self.water_temp = last_observation[0]
-        print(self.water_temp)
+        # print(self.water_temp)
+        print(self.v)
+        # print(boiler_power)
 
         # Some heat dissipation
         # self.water_temp -= 0.02 * dt
@@ -35,8 +37,8 @@ if __name__ == '__main__':
     boiler = WaterBoiler()
     water_temp = boiler.water_temp
 
-    pid = PID(0.0005, 0.01, 0.01, setpoint=water_temp)
-    pid.output_limits = (-24, 24)
+    pid = PID(5, 0.01, 0.1, setpoint=water_temp)
+    pid.output_limits = (-0.01, 0.01)
 
     start_time = time.time()
     last_time = start_time
