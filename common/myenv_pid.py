@@ -52,15 +52,23 @@ class MyEnv():
 
     # 回合是否或者
     def is_dead(self, state: np.array):
-        # e = state[0] > 30 / 180 * math.pi or state[1] < -30 / 180
-        pitch = state[1] > 30 / 180 * math.pi or state[1] < -30 / 180
-        travel = state[2] > 30 / 180 * math.pi or state[0] < -30 / 180
-        # m = np.max(state[:3]) >= 1.05 or np.min(state[:3]) <= -1.05
+        # d
+        e = state[0] > 70 / 180 * math.pi or state[0] < -15 / 180 * math.pi
+        if e:
+            print('e超出')
+        pitch = state[1] > 30 / 180 * math.pi or state[1] < -30 / 180 * math.pi
+        if pitch:
+            print('pitch超出')
+        travel = state[2] > 30 / 180 * math.pi or state[2] < -30 / 180 * math.pi
+        if travel:
+            print('travel超出')
         # v
         e_v4 = state[3] > 0.50 or state[3] < -0.60
+        if e_v4:
+            print('e_v4超出')
         p_v5 = state[4] > 0.40 or state[4] < -0.40
         t_v6 = state[5] > 0.40 or state[5] < -0.40
-        return pitch or travel or e_v4 or p_v5 or t_v6
+        return e or pitch or travel or e_v4 or p_v5 or t_v6
 
     # 定义奖励：目前状态距目标的距离与前一次状态距目标的距离的差值按比例缩放
     def get_reward(self, state: np.ndarray):
@@ -77,7 +85,7 @@ class MyEnv():
         # TODO 每个回合的步骤是否超过阈值，判断是否结束
         self.last_observation = device_next_state(self.last_observation, action.tolist())
         reward = self.get_reward(self.last_observation)
-        done = (self.is_dead(self.last_observation)) or (self.total_step >= 12000)
+        done = (self.is_dead(self.last_observation))
         if done:
             print('dead')
         self.total_step += 1
