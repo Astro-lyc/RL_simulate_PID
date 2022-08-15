@@ -177,7 +177,7 @@ def nonlinearheli(X, U):
 def device_next_state(Y, U):
     Y, DERX = nonlinearheli(Y, U)
     # Y = Y + DERX * h; % h =0.1
-    timestep = 0.05
+    timestep = 0.01
     Y = [it2 + Y[i] for i, it2 in enumerate([item * timestep for item in DERX])]
     return Y
 
@@ -187,10 +187,10 @@ if __name__ == '__main__':
     # X = [-15 / 180 * 3.1415, 0, 0, 0, 0, 0]  # 初始状态
     Y = [-15 / 180 * math.pi, 0, 0, 0, 0, 0]  # 初始状态
     # Y = [.0, .0, .0, .0, .0, .0]  # 初始状态
-    timestep = 0.05
+    timestep = 0.01
 
     x = []
-    for i in range(40000):
+    for i in range(10000):
         Y, DERX = nonlinearheli(Y, U)
         # Y = Y + DERX * h; % h =0.1
         Y = [it2 + Y[i] for i, it2 in enumerate([item * timestep for item in DERX])]

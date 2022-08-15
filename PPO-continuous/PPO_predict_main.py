@@ -46,7 +46,7 @@ def main(args, env_name, number, seed):
     # replay_buffer = ReplayBuffer(args)
     agent = PPO_continuous(args)
     #  加载权重
-    weight_file = './PPO_actor_newest.pth'
+    weight_file = './PPO_actor_newest_0126.pth'
     act = torch.load(weight_file)
     # act = torch.load(weight_file).state_dict()
     agent.actor.load_state_dict(act, strict=False)
@@ -67,7 +67,7 @@ def main(args, env_name, number, seed):
         done = False
         # while not done:
         while 1:
-            if total_steps > 500:
+            if total_steps > 10000:
                 quit()
             start_time = time.time()
             episode_steps += 1

@@ -166,16 +166,13 @@ def main(args, env_name, number, seed):
                 writer.add_scalar('step_rewards_{}'.format(env_name), evaluate_rewards[-1], global_step=total_steps)
                 writer.add_scalar('hold_on_steps_{}'.format(env_name), hand_on_steps, global_step=total_steps)
                 # Save the rewards
-                if evaluate_num % args.save_freq == 0:
-                    np.save(
-                        './data_train/PPO_continuous_{}_env_{}_number_{}_seed_{}.npy'.format(args.policy_dist, env_name,
-                                                                                             number, seed),
-                        np.array(evaluate_rewards))
+                if len(evaluate_rewards) > 3:
                     # 保存模型v -> 只存个actor就行了
                     if evaluate_rewards[-1] > evaluate_rewards[-2] and total_steps > 80 * 1e3:
                         torch.save(agent.actor.state_dict(),
                                    './PPO_actor_newest_' + suff + '.pth')  # 保存权重少了state_dict智障行为
                         loguru.logger.warning("已保存权重！")
+                        quit()
 
 
 if __name__ == '__main__':
