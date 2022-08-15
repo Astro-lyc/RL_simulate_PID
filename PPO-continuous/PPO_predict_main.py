@@ -46,7 +46,7 @@ def main(args, env_name, number, seed):
     # replay_buffer = ReplayBuffer(args)
     agent = PPO_continuous(args)
     #  加载权重
-    weight_file = './PPO_actor_newest_0126.pth'
+    weight_file = './PPO_actor_newest_0133.pth'
     act = torch.load(weight_file)
     # act = torch.load(weight_file).state_dict()
     agent.actor.load_state_dict(act, strict=False)
