@@ -6,13 +6,14 @@ import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 # import gym
 # from common.myenv_simulate import MyEnv
-# from common.myenv import MyEnv
-from common.myenv_pid import MyEnv
+from common.myenv import MyEnv
+# from common.myenv_pid import MyEnv
 
 import argparse
 from normalization import Normalization, RewardScaling
 from replaybuffer import ReplayBuffer
 from ppo_continuous import PPO_continuous
+from datetime import datetime
 
 
 def evaluate_policy(args, env, agent, state_norm):
@@ -82,8 +83,10 @@ def main(args, env_name, number, seed):
     agent = PPO_continuous(args)
 
     # Build a tensorboard
+    suff = datetime.now().strftime("%H%M")
     writer = SummaryWriter(
-        log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}_7'.format(env_name, args.policy_dist, number, seed))
+        log_dir='runs/PPO_continuous/env_{}_{}_number_{}_seed_{}_{}'.format(env_name, args.policy_dist, number, seed,
+                                                                            suff))
 
     state_norm = Normalization(shape=args.state_dim)  # Trick 2:state normalization
     if args.use_reward_norm:  # Trick 3:reward normalization
@@ -171,7 +174,7 @@ def main(args, env_name, number, seed):
                     # 保存模型v -> 只存个actor就行了
                     if evaluate_rewards[-1] > evaluate_rewards[-2] and total_steps > 80 * 1e3:
                         torch.save(agent.actor.state_dict(),
-                                   './PPO_actor_newest.pth')  # 保存权重少了state_dict智障行为
+                                   './PPO_actor_newest_' + suff + '.pth')  # 保存权重少了state_dict智障行为
                         loguru.logger.warning("已保存权重！")
 
 

@@ -7,7 +7,8 @@ sys.path.append(parent_path)  # 添加路径到系统路径
 import numpy as np
 import torch
 
-from common.rotor_state_calculator import *
+# from common.rotor_state_calculator import *
+from common.helicopter_nonlinear_function import *
 
 
 class Space():
@@ -40,21 +41,18 @@ class MyEnv():
     def seed(self, seed):
         np.random.seed(seed)
 
-    # def sample(self):
-    #     a = np.random.uniform(low=-1, high=1, size=(1, 3))[0]
-    #     return a * self.action_bound / 5
 
     # 回合是否或者
     def is_dead(self, state: np.array):
-        # e = state[0] > 30 / 180 * math.pi or state[1] < -30 / 180
-        pitch = state[1] > 30 / 180 * math.pi or state[1] < -30 / 180
-        travel = state[2] > 30 / 180 * math.pi or state[0] < -30 / 180
+        e = state[0] > 80 / 180 * math.pi or state[0] < -50 / 180 * math.pi
+        pitch = state[1] > 30 / 180 * math.pi or state[1] < -30 / 180 * math.pi
+        travel = state[2] > 30 / 180 * math.pi or state[2] < -30 / 180 * math.pi
         # m = np.max(state[:3]) >= 1.05 or np.min(state[:3]) <= -1.05
         # v
         e_v4 = state[3] > 0.50 or state[3] < -0.60
         p_v5 = state[4] > 0.40 or state[4] < -0.40
         t_v6 = state[5] > 0.40 or state[5] < -0.40
-        return pitch or travel or e_v4 or p_v5 or t_v6
+        return e or pitch or travel or e_v4 or p_v5 or t_v6
 
     # 定义奖励：目前状态距目标的距离与前一次状态距目标的距离的差值按比例缩放
     def get_reward(self, state: np.array):
@@ -68,7 +66,7 @@ class MyEnv():
         # TODO 每个回合的步骤是否超过阈值，判断是否结束
         self.last_observation = device_next_state(self.last_observation, action.tolist())
         reward = self.get_reward(self.last_observation)
-        done = (self.is_dead(self.last_observation)) or (self.total_step >= 12000)
+        done = (self.is_dead(self.last_observation)) or (self.total_step >= 50000)
         if done:
             print('dead')
         self.total_step += 1

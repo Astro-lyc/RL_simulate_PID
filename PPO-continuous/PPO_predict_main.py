@@ -4,19 +4,21 @@ import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 # import gym
-from common.myenv_simulate import MyEnv
-# from common.myenv import MyEnv
+# from common.myenv_simulate import MyEnv
+from common.myenv import MyEnv
 
 import argparse
 from normalization import Normalization, RewardScaling
 from replaybuffer import ReplayBuffer
 from ppo_continuous import PPO_continuous
+from datetime import datetime
 
 
 def main(args, env_name, number, seed):
     # Build a tensorboard
+    suff = datetime.now().strftime("%H%M")
     writer = SummaryWriter(
-        log_dir='runs/PPO_predict'.format(env_name, args.policy_dist, number, seed))
+        log_dir='runs/PPO_predict/{}'.format(suff))
 
     env = MyEnv()
     # Set random seed
@@ -57,18 +59,21 @@ def main(args, env_name, number, seed):
 
     while total_steps < args.max_train_steps:
         s = env.reset()
-        if args.use_state_norm:
-            s = state_norm(s)
-        if args.use_reward_scaling:
-            reward_scaling.reset()
+        # if args.use_state_norm:
+        #     s = state_norm(s)
+        # if args.use_reward_scaling:
+        #     reward_scaling.reset()
         episode_steps = 0
         done = False
-        while not done:
+        # while not done:
+        while 1:
+            if total_steps > 500:
+                quit()
             start_time = time.time()
             episode_steps += 1
-            if episode_steps >= 1000:
-                env.reset()
-                quit()
+            # if episode_steps >= 1000:
+            #     env.reset()
+            #     quit()
             a, a_logprob = agent.choose_action(s)  # Action and the corresponding log probability
             if args.policy_dist == "Beta":
                 action = -2 * (a - 0.5) * args.max_action  # [0,1]->[-max,max]
@@ -80,27 +85,31 @@ def main(args, env_name, number, seed):
                 # print(s)
                 # print(a)
                 # print(r)
-            if args.use_state_norm:
-                s_ = state_norm(s_)
-            if args.use_reward_norm:
-                r = reward_norm(r)
-            elif args.use_reward_scaling:
-                r = reward_scaling(r)
+
+            # if args.use_state_norm:
+            #     s_ = state_norm(s_)
+            # if args.use_reward_norm:
+            #     r = reward_norm(r)
+            # elif args.use_reward_scaling:
+            #     r = reward_scaling(r)
 
             # When dead or win or reaching the max_episode_steps, done will be Ture, we need to distinguish them;
             # dw means dead or win,there is no next state s';
             # but when reaching the max_episode_steps,there is a next state s' actually.
-            dur = time.time() - start_time
-            if done and episode_steps != args.max_episode_steps:
-                dw = True
-                print("本轮游戏结束！程序退出")
-                env.reset()
-                quit()
-            else:
-                dw = False
-                sleep_dur = 0.1 - dur
-                if sleep_dur > 0:
-                    time.sleep(sleep_dur)  # fixme ?
+
+            # dur = time.time() - start_time
+
+            # if done and episode_steps != args.max_episode_steps:
+            #     dw = True
+            #     print("本轮游戏结束！程序退出")
+            #     env.reset()
+            #     quit()
+
+            # else:
+            #     dw = False
+            #     sleep_dur = 0.1 - dur
+            #     if sleep_dur > 0:
+            #         time.sleep(sleep_dur)  # fixme ?
 
             # Take the 'action'，but store the original 'a'（especially for Beta）
             # replay_buffer.store(s, a, a_logprob, r, s_, dw, done)
