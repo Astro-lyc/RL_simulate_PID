@@ -22,7 +22,7 @@ class WaterBoiler:
     def update(self, boiler_power, dt):
         # if boiler_power > 0:
         # Boiler can only produce heat, not cold
-        self.v += -1 * boiler_power * dt
+        self.v += 1 * boiler_power * dt
         # self.v = 2
         last_observation, reward, done, _ = self.env.step(torch.tensor([self.v, self.v]))
         if done:
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     boiler = WaterBoiler()
     water_temp = boiler.water_temp
 
-    pid = PID(.2, 0.05, 0, setpoint=water_temp, sample_time=None, auto_mode=True)
+    pid = PID(0.0007, 0.1, 0, setpoint=water_temp, sample_time=0.001)
     pid.output_limits = (-5, 5)
 
     #
@@ -69,8 +69,8 @@ if __name__ == '__main__':
         power = pid(water_temp)
         # water_temp = boiler.update(power, dt)
         # water_temp = boiler.update(power, 0.1)
-        water_temp = boiler.update(power, 0.1)
-        time.sleep(0.05)
+        water_temp = boiler.update(power, 0.05)
+        # time.sleep(0.05)
 
         x += [current_time - start_time]
         y += [water_temp]

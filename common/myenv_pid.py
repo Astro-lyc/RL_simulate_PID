@@ -7,7 +7,8 @@ sys.path.append(parent_path)  # 添加路径到系统路径
 import numpy as np
 import torch
 
-from common.rotor_state_calculator import *
+# from common.rotor_state_calculator import *
+from common.helicopter_nonlinear_function import *
 import time
 from simple_pid import PID
 
