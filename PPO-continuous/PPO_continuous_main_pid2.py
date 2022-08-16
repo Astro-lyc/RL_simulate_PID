@@ -168,7 +168,7 @@ def main(args, env_name, number, seed):
                 # Save the rewards
                 if len(evaluate_rewards) > 3:
                     # 保存模型v -> 只存个actor就行了
-                    if evaluate_rewards[-1] > evaluate_rewards[-2] and total_steps > 80 * 1e3:
+                    if evaluate_rewards[-1] > evaluate_rewards[-2] and total_steps > 800 * 1e3:
                         torch.save(agent.actor.state_dict(),
                                    './PPO_actor_newest_' + suff + '.pth')  # 保存权重少了state_dict智障行为
                         loguru.logger.warning("已保存权重！")
