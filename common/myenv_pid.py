@@ -64,7 +64,7 @@ class MyEnv():
         if travel:
             print('travel超出')
         # v
-        e_v4 = state[3] > 0.50 or state[3] < -0.60
+        e_v4 = state[3] > 0.90 or state[3] < -0.90
         if e_v4:
             print('e_v4超出')
         p_v5 = state[4] > 0.40 or state[4] < -0.40
