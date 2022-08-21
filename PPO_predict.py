@@ -18,17 +18,13 @@ def main(args, env_name, number, seed):
         log_dir='runs/PPO_predict/{}'.format(suff))
 
     env = MyEnv()
-    # Set random seed
     env.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
 
     args.state_dim = env.observation_space.shape[0]
     args.action_dim = env.action_space.shape[0]
-    # fixme 10？
-    # args.max_action = float(env.action_space.high[0])
     args.max_action = 24.0
-    # args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
     args.max_episode_steps = 20000  # Maximum number of steps per episode
     print("env={}".format(env_name))
     print("state_dim={}".format(args.state_dim))
@@ -56,10 +52,6 @@ def main(args, env_name, number, seed):
 
     while total_steps < args.max_train_steps:
         s = env.reset()
-        # if args.use_state_norm:
-        #     s = state_norm(s)
-        # if args.use_reward_scaling:
-        #     reward_scaling.reset()
         episode_steps = 0
         done = False
         # while not done:

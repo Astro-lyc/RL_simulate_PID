@@ -31,7 +31,6 @@ class MyEnv:
         self.last_distance = self.o_distance(self.final_state, self.last_observation)  # 初始化距离比较量
         self.total_step = 1
         self.pid_list = []
-        # final_state_list = list(self.final_state.tolist())
         return self.last_observation
 
     # 欧式距离

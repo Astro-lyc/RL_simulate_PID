@@ -176,26 +176,20 @@ def nonlinearheli(X, U):
 # 装置的下一个状态计算：输入的6个状态 -> 下一个的6个状态
 def device_next_state(Y, U):
     Y, DERX = nonlinearheli(Y, U)
-    # Y = Y + DERX * h; % h =0.1
-    timestep = 0.001
+    timestep = 0.001  # todo 改时间长度在这里
     Y = [it2 + Y[i] for i, it2 in enumerate([item * timestep for item in DERX])]
     return Y
 
 
 if __name__ == '__main__':
     U = [2, 2]  # 电压 ：-10,10
-    # X = [-15 / 180 * 3.1415, 0, 0, 0, 0, 0]  # 初始状态
     Y = [-15 / 180 * math.pi, 0, 0, 0, 0, 0]  # 初始状态
-    # Y = [.0, .0, .0, .0, .0, .0]  # 初始状态
-    timestep = 0.005
+    timestep = 0.005  # todo 测试时间长度画图直接运行这个文件
 
     x = []
     for i in range(1000000):
         Y, DERX = nonlinearheli(Y, U)
-        # Y = Y + DERX * h; % h =0.1
         Y = [it2 + Y[i] for i, it2 in enumerate([item * timestep for item in DERX])]
-        # print(Y)
-        # print([u * 180 / math.pi for u in Y])
         x.append(Y[0] * 180 / math.pi)
 
     plt.plot(x, label='e')

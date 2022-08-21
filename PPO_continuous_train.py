@@ -2,7 +2,6 @@ import loguru
 import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
-# import gym
 from common.myenv import MyEnv
 
 import argparse
@@ -47,8 +46,6 @@ def evaluate_policy(args, env, agent, state_norm):
 def main(args, env_name, number, seed):
     # env = gym.make(env_name)
     env = MyEnv()
-    # env_evaluate = gym.make(env_name)  # When evaluating the policy, we need to rebuild an environment
-    # env_evaluate = MyEnv()  # When evaluating the policy, we need to rebuild an environment
     env_evaluate = env  # When evaluating the policy, we need to rebuild an environment
     # Set random seed
     env.seed(seed)
@@ -60,10 +57,7 @@ def main(args, env_name, number, seed):
 
     args.state_dim = env.observation_space.shape[0]
     args.action_dim = env.action_space.shape[0]
-    # fixme 10？
-    # args.max_action = float(env.action_space.high[0])
     args.max_action = 24.0
-    # args.max_episode_steps = env._max_episode_steps  # Maximum number of steps per episode
     args.max_episode_steps = 2000  # Maximum number of steps per episode
     print("env={}".format(env_name))
     print("state_dim={}".format(args.state_dim))
