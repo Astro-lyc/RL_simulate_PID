@@ -3,7 +3,7 @@ import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 # import gym
-from common.myenv_pid import MyEnv
+from common.myenv import MyEnv
 
 import argparse
 from model.normalization import Normalization, RewardScaling
@@ -201,6 +201,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    env_name = ['Pendulum-v1', 'BipedalWalker-v3', 'HalfCheetah-v2', 'Hopper-v2', 'Walker2d-v2']
+    env_name = ['helicopter']
     env_index = 0
     main(args, env_name=env_name[env_index], number=1, seed=10)

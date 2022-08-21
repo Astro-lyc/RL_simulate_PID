@@ -3,15 +3,11 @@ import time
 import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
-# import gym
-# from common.myenv_simulate import MyEnv
-# from common.myenv import MyEnv
-from common.myenv_pid import MyEnv
+from common.myenv import MyEnv
 
 import argparse
-from normalization import Normalization, RewardScaling
-from replaybuffer import ReplayBuffer
-from ppo_continuous import PPO_continuous
+from model.normalization import Normalization, RewardScaling
+from model.ppo_continuous import PPO_continuous
 from datetime import datetime
 
 
@@ -68,7 +64,7 @@ def main(args, env_name, number, seed):
         done = False
         # while not done:
         while 1:
-            if total_steps > 500000:
+            if total_steps > 50000:
                 quit()
             start_time = time.time()
             episode_steps += 1
@@ -87,33 +83,6 @@ def main(args, env_name, number, seed):
                 # print(a)
                 # print(r)
 
-            # if args.use_state_norm:
-            #     s_ = state_norm(s_)
-            # if args.use_reward_norm:
-            #     r = reward_norm(r)
-            # elif args.use_reward_scaling:
-            #     r = reward_scaling(r)
-
-            # When dead or win or reaching the max_episode_steps, done will be Ture, we need to distinguish them;
-            # dw means dead or win,there is no next state s';
-            # but when reaching the max_episode_steps,there is a next state s' actually.
-
-            # dur = time.time() - start_time
-
-            # if done and episode_steps != args.max_episode_steps:
-            #     dw = True
-            #     print("本轮游戏结束！程序退出")
-            #     env.reset()
-            #     quit()
-
-            # else:
-            #     dw = False
-            #     sleep_dur = 0.1 - dur
-            #     if sleep_dur > 0:
-            #         time.sleep(sleep_dur)  # fixme ?
-
-            # Take the 'action'，but store the original 'a'（especially for Beta）
-            # replay_buffer.store(s, a, a_logprob, r, s_, dw, done)
             s = s_
             total_steps += 1
             #
@@ -161,6 +130,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    env_name = ['Pendulum-v1', 'BipedalWalker-v3', 'HalfCheetah-v2', 'Hopper-v2', 'Walker2d-v2']
+    env_name = ['helicopter']
     env_index = 0
     main(args, env_name=env_name[env_index], number=1, seed=10)
