@@ -47,7 +47,7 @@ if __name__ == '__main__':
     boiler = WaterBoiler()
     water_temp = boiler.water_temp
 
-    pid = PID(0.02, .01, .99, setpoint=water_temp, sample_time=0.0001)
+    pid = PID(1, .1, 5, setpoint=water_temp, sample_time=0.0001)
     pid.output_limits = (-5, 5)
 
     #
@@ -61,8 +61,8 @@ if __name__ == '__main__':
     setpoint, y, x, z, p = [], [], [], [], []
 
     step = 1
-    while time.time() - start_time < 20:
-    # while not boiler.done:
+    while time.time() - start_time < 10:
+        # while not boiler.done:
         step += 1
         current_time = time.time()
         dt = current_time - last_time

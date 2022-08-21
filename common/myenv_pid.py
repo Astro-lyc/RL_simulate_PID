@@ -13,12 +13,12 @@ import time
 from simple_pid import PID
 
 
-class Space():
+class Space:
     def __init__(self, shape):
         self.shape = (shape,)
 
 
-class MyEnv():
+class MyEnv:
     def __init__(self, ):
         self.reset()
 
@@ -36,11 +36,11 @@ class MyEnv():
         # pid -> todo pid需要参数整定
         self.pid_list = []
         final_state_list = list(self.final_state.tolist())
-        self.pid_list.append(PID(5, 0.01, 0.1, setpoint=final_state_list[0]))
-        self.pid_list.append(PID(5, 0.01, 0.1, setpoint=final_state_list[1]))
-        self.pid_list.append(PID(5, 0.01, 0.1, setpoint=final_state_list[2]))
+        self.pid_list.append(PID(1, 0.1, 5, setpoint=final_state_list[0], sample_time=0.0001))
+        self.pid_list.append(PID(1, 0.1, 5, setpoint=final_state_list[1], sample_time=0.0001))
+        self.pid_list.append(PID(1, 0.1, 5, setpoint=final_state_list[2], sample_time=0.0001))
         for pid in self.pid_list:
-            pid.output_limits = (-24, 24)
+            pid.output_limits = (-5, 5)
         #
         return self.last_observation
 
@@ -64,7 +64,7 @@ class MyEnv():
         if travel:
             print('travel超出')
         # v
-        e_v4 = state[3] > 0.90 or state[3] < -0.90
+        e_v4 = state[3] > 0.50 or state[3] < -0.50
         if e_v4:
             print('e_v4超出')
         p_v5 = state[4] > 0.40 or state[4] < -0.40
@@ -73,20 +73,24 @@ class MyEnv():
 
     # 定义奖励：目前状态距目标的距离与前一次状态距目标的距离的差值按比例缩放
     def get_reward(self, state: np.ndarray):
-        # 距离奖励
-        distance = self.o_distance(state[:], self.final_state[:])
-        d = -distance * self.reward_rate + 10
+        # 距离惩罚
+        distance_p = self.o_distance(state[1], self.final_state[1])
+        distance_t = self.o_distance(state[2], self.final_state[2])
+        # d = -distance * self.reward_rate + 10
         # 稳定性奖励
-        p0 = self.pid_list[0](state[0], 0.1)
-        p1 = self.pid_list[1](float(state[1]), 0.1)
-        p2 = self.pid_list[2](float(state[2]), 0.1)
-        return -(p0 * 3 + p1 + p2) * 10 + 50 + d
+        p0 = self.pid_list[0](state[0], 0.001)
+        p1 = self.pid_list[1](float(state[1]), 0.001)
+        p2 = self.pid_list[2](float(state[2]), 0.001)
+        # return -(p0 * 3 + p1 + p2) * 10 + 50 + d
+        # return -(abs(p0) + abs(p1) + abs(p2)) + 5
+        return -abs(p0) - (distance_p + distance_t) * 10 + 5
 
     def step(self, action: torch.Tensor):
         # TODO 每个回合的步骤是否超过阈值，判断是否结束
+        action = np.clip(action, 0, 4)  # fixme 这里要clip一下
         self.last_observation = device_next_state(self.last_observation, action.tolist())
         reward = self.get_reward(self.last_observation)
-        done = (self.is_dead(self.last_observation))
+        done = (self.is_dead(self.last_observation)) or (self.total_step >= 80000)
         if done:
             print('dead')
         self.total_step += 1
