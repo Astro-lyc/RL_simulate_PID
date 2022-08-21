@@ -159,8 +159,8 @@ def main(args, env_name, number, seed):
                 if len(evaluate_rewards) > 3:
                     # 保存模型v -> 只存个actor就行了
                     if evaluate_rewards[-1] >= max(evaluate_rewards) and total_steps > 80 * 1e3:
-                        torch.save(agent.actor.state_dict(),
-                                   './PPO_actor_newest_' + suff + '.pth')  # 保存权重少了state_dict智障行为
+                        # torch.save(agent.actor.state_dict(),'./PPO_actor_newest_' + suff + '.pth')  # 保存权重少了state_dict智障行为
+                        torch.save(agent.actor.state_dict(), './PPO_actor_newest' + '.pth')  # 保存权重少了state_dict智障行为
                         loguru.logger.success("已保存权重！")
                         # quit()
 

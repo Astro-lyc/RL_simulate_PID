@@ -39,7 +39,7 @@ def main(args, env_name, number, seed):
     # replay_buffer = ReplayBuffer(args)
     agent = PPO_continuous(args)
     #  加载权重
-    weight_file = './PPO_actor_newest_1216.pth'
+    weight_file = './PPO_actor_newest.pth'  # TODO 预测时需要改这个文件名
     act = torch.load(weight_file)
     # act = torch.load(weight_file).state_dict()
     agent.actor.load_state_dict(act, strict=False)
