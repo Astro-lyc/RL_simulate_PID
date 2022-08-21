@@ -5,7 +5,8 @@ import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 # import gym
 # from common.myenv_simulate import MyEnv
-from common.myenv import MyEnv
+# from common.myenv import MyEnv
+from common.myenv_pid import MyEnv
 
 import argparse
 from normalization import Normalization, RewardScaling
@@ -46,7 +47,7 @@ def main(args, env_name, number, seed):
     # replay_buffer = ReplayBuffer(args)
     agent = PPO_continuous(args)
     #  加载权重
-    weight_file = './PPO_actor_newest_0140.pth'
+    weight_file = './PPO_actor_newest_1216.pth'
     act = torch.load(weight_file)
     # act = torch.load(weight_file).state_dict()
     agent.actor.load_state_dict(act, strict=False)
@@ -67,7 +68,7 @@ def main(args, env_name, number, seed):
         done = False
         # while not done:
         while 1:
-            if total_steps > 5000:
+            if total_steps > 500000:
                 quit()
             start_time = time.time()
             episode_steps += 1
