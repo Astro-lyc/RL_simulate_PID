@@ -1,5 +1,5 @@
 import numpy as np
-import pip install theano
+import theano
 import theano.tensor as T
 import matplotlib.pyplot as plt
 
