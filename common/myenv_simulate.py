@@ -85,7 +85,7 @@ class MyEnv():
         self.reward = 0
         self.reward_rate = 10  # todo 奖励10倍于距离缩小
         # fixme 设定一个最终状态（悬停目标）
-        self.final_state = np.array([0, 0, 25 / 180 * math.pi, 0, 0, 0])  # 最终需要的观测值
+        self.final_state = np.array([15 / 180 * math.pi, 0, 0, 0, 0, 0])  # 最终需要的观测值
         self.change_v(0.0, 0.0)
         print('sleep2')
         time.sleep(4)

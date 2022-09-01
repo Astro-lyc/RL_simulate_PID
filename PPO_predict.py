@@ -3,7 +3,8 @@ import time
 import torch
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
-from common.myenv import MyEnv
+# from common.myenv import MyEnv
+from common.myenv_simulate import MyEnv
 
 import argparse
 from model.normalization import Normalization, RewardScaling
@@ -82,14 +83,13 @@ def main(args, env_name, number, seed):
             writer.add_scalar('U/left', a[0], global_step=total_steps)
             writer.add_scalar('U/right', a[1], global_step=total_steps)
             # S
-            writer.add_scalar('State/epi', s[0], global_step=total_steps)
-            writer.add_scalar('State/rou', s[1], global_step=total_steps)
-            writer.add_scalar('State/lam', s[2], global_step=total_steps)
+            writer.add_scalar('State/elevation (rad)', s[0], global_step=total_steps)
+            writer.add_scalar('State/pitch (rad)', s[1], global_step=total_steps)
+            writer.add_scalar('State/travel (rad)', s[2], global_step=total_steps)
             #
-            writer.add_scalar('StateDot/epi_dot', s[3], global_step=total_steps)
-            writer.add_scalar('StateDot/rou_dot', s[4], global_step=total_steps)
-            writer.add_scalar('StateDot/lam_dot', s[5], global_step=total_steps)
-
+            writer.add_scalar('StateDot/elevation_dot (rad/s)', s[3], global_step=total_steps)
+            writer.add_scalar('StateDot/pitch_dot (rad/s)', s[4], global_step=total_steps)
+            writer.add_scalar('StateDot/travel_dot (rad/s)', s[5], global_step=total_steps)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Hyperparameters Setting for PPO-continuous")
