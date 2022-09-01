@@ -27,21 +27,23 @@ def nonlinearheli(X, U):
     rho_dot = X[4]  # rou 角速度
     lambda_dot = X[5]  # 左右 角速度
     # TODO 三个加速度
+
+    # X[1] 换成
     epsilon_ddot = -math.cos(X[1]) ** 2 * Lh * (mf - mb) * La * math.sin(X[1]) / (
             (mf + mb) * La ** 2 + Lh ** 2 * mb + Lh ** 2 * mf + Lw ** 2 * mw) * X[3] ** 2 + (
-                           -0.2e1 * Lh * math.cos(X[1]) * (
+                           -2 * Lh * math.cos(X[1]) * (
                            math.cos(X[0]) * La * (mf - mb) * math.cos(X[1]) ** 2 - math.cos(X[0]) * La * (
                            mf - mb) + math.sin(X[1]) * math.sin(X[0]) * Lh * (mf + mb)) / (
-                                   (mf + mb) * La ** 2 + Lh ** 2 * mb + Lh ** 2 * mf + Lw ** 2 * mw) * X[
-                               5] - 0.2e1 * (mf + mb) * math.cos(X[1]) * Lh ** 2 * math.sin(X[1]) * X[4] / (
+                                   (mf + mb) * La ** 2 + Lh ** 2 * mb + Lh ** 2 * mf + Lw ** 2 * mw) * Lh * X[
+                               5] - 2 * (mf + mb) * math.cos(X[1]) * Lh ** 2 * math.sin(X[1]) * X[4] / (
                                    (mf + mb) * La ** 2 + Lh ** 2 * mb + Lh ** 2 * mf + Lw ** 2 * mw)) * X[3] + (
-                           (math.sin(X[1]) * La * (mf - mb) * math.cos(X[0]) - 0.2e1 * math.sin(X[0]) * Lh * (
-                                   mf + mb)) * Lh * math.cos(X[0]) * math.cos(X[1]) ** 2 - 0.2e1 * math.sin(
+                           (math.sin(X[1]) * La * (mf - mb) * math.cos(X[0]) - 2 * math.sin(X[0]) * Lh * (
+                                   mf + mb)) * Lh * math.cos(X[0]) * math.cos(X[1]) ** 2 - 2 * math.sin(
                        X[1]) * La * Lh * (mf - mb) * math.cos(X[0]) ** 2 - math.sin(X[0]) * (
                                    (mf + mb) * La ** 2 - Lh ** 2 * mb - Lh ** 2 * mf + Lw ** 2 * mw) * math.cos(
                        X[0]) + math.sin(X[1]) * La * Lh * (mf - mb)) / (
                            (mf + mb) * La ** 2 + Lh ** 2 * mb + Lh ** 2 * mf + Lw ** 2 * mw) * X[
-                       5] ** 2 - 0.2e1 * Lh * (
+                       5] ** 2 - 2 * Lh * (
                            math.cos(X[0]) * Lh * (mf + mb) * math.cos(X[1]) ** 2 - math.cos(X[0]) * Lh * (
                            mf + mb) - math.sin(X[1]) * math.sin(X[0]) * La * (mf - mb)) * X[4] / (
                            (mf + mb) * La ** 2 + Lh ** 2 * mb + Lh ** 2 * mf + Lw ** 2 * mw) * X[5] + Lh * (

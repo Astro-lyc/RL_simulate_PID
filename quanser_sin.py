@@ -48,12 +48,12 @@ next(diff_elevation)
 timestep = 0.1
 
 # Read Encoders channel 0,1,2
-for i in range(100):
+for i in range(200):
     # v = sin(2 pi f t) ; t = i * dt(step)  f = 1Hz
-    f = 1
+    f = 0.5
     step = 0.1
     t = i * step
-    v = math.sin(2 * math.pi * f * t) * 10
+    v = math.sin(2 * math.pi * f * t) * 2
     # print(v)
     writer.add_scalar('v', v, global_step=i)
 
@@ -79,12 +79,12 @@ for i in range(100):
     w_elevation = delta_elevation / 4096 * 360  # Elevation Speed
 
     state = [travel, pitch, elevation, w_travel, w_pitch, w_elevation]
-    writer.add_scalar('state/travel', travel, global_step=i)
-    writer.add_scalar('state/pitch', pitch, global_step=i)
-    writer.add_scalar('state/elevation', elevation, global_step=i)
-    writer.add_scalar('state/w_travel', w_travel, global_step=i)
-    writer.add_scalar('state/w_pitch', w_pitch, global_step=i)
-    writer.add_scalar('state/w_elevation', w_elevation, global_step=i)
+    writer.add_scalar('state/elevation (rad)', elevation, global_step=i)
+    writer.add_scalar('state/pitch (rad)', pitch, global_step=i)
+    writer.add_scalar('state/travel (rad)', travel, global_step=i)
+    writer.add_scalar('state/w_elevation (rad/s)', w_elevation, global_step=i)
+    writer.add_scalar('state/w_pitch (rad/s)', w_pitch, global_step=i)
+    writer.add_scalar('state/w_travel (rad/s)', w_travel, global_step=i)
 
     print(state)
     time.sleep(step)
