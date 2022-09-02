@@ -57,6 +57,7 @@ def main(args, env_name, number, seed):
         done = False
         # while not done:
         while 1:
+            time.sleep(0.1)
             if total_steps > 50000:
                 quit()
             start_time = time.time()
@@ -90,6 +91,7 @@ def main(args, env_name, number, seed):
             writer.add_scalar('StateDot/elevation_dot (rad/s)', s[3], global_step=total_steps)
             writer.add_scalar('StateDot/pitch_dot (rad/s)', s[4], global_step=total_steps)
             writer.add_scalar('StateDot/travel_dot (rad/s)', s[5], global_step=total_steps)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Hyperparameters Setting for PPO-continuous")
